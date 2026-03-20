@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="TS Search" />
+  <meta name="application-name" content="TS Search" />
+  <link rel="apple-touch-icon" sizes="180x180" href="ts-search-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="ts-search-icon.png" />
+  <meta name="theme-color" content="#000000" />
+
+  <title>TS Menu</title>
+
+  <style>
+    :root {
+      --bg: #f3f5f8;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #1d4ed8;
+      --accent-hover: #1e40af;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+    }
+
+    .wrap {
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(16px);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      text-align: center;
+      padding: 16px;
+      background: rgba(248,250,252,0.92);
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .header img {
+      width: 110px;
+      margin: 6px auto;
+      display: block;
+    }
+
+    .menu {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .menu-btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 60px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 8px 20px rgba(37,99,235,0.25);
+      transition: all 0.15s ease;
+    }
+
+    .menu-btn:hover {
+      background: var(--accent-hover);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+
+      <div class="header">
+        <img src="meade_logo.jpg" alt="Logo">
+      </div>
+
+      <div class="menu">
+        <a href="ts.html" class="menu-btn">Traffic Signal</a>
+        <a href="sl.html" class="menu-btn">Street Lighting</a>
+        <a href="pc.html" class="menu-btn">Power Centers</a>
+        <a href="ps.html" class="menu-btn">Pump Stations</a>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
