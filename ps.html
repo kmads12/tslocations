@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="Locations" />
+  <meta name="application-name" content="Locations" />
+  <link rel="apple-touch-icon" sizes="180x180" href="meade_locations_icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="meade_locations_icon.png" />
+<meta name="theme-color" content="#000000" />
+  <title>Pump Station Location Search</title>
+  
+  <style>
+    :root {
+      --bg: #f3f5f8;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #1d4ed8;
+      --accent-hover: #1e40af;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+    }
+
+    .wrap {
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.72);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      text-align: center;
+      padding: 12px 18px 14px;
+      background: rgba(248,250,252,0.92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(229,231,235,0.85);
+    }
+
+    .header img {
+      width: 144px;
+      max-width: 42vw;
+      height: auto;
+      margin: 4px auto 8px;
+      display: block;
+      opacity: 0.96;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .sub {
+      margin: 10px auto 0;
+      max-width: 640px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .controls {
+      position: sticky;
+      top: 120px;
+      z-index: 999;
+      padding: 14px 16px 12px;
+      background: rgba(248,250,252,0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(229,231,235,0.85);
+    }
+
+    .search-wrap {
+      position: relative;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #9ca3af;
+      pointer-events: none;
+    }
+
+    .search {
+      width: 100%;
+      padding: 15px 18px 15px 42px;
+      border: 1px solid rgba(203,213,225,0.9);
+      border-radius: 16px;
+      font-size: 16px;
+      outline: none;
+      background: rgba(255,255,255,0.96);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .search:focus {
+      border-color: rgba(37,99,235,0.55);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12), 0 8px 20px rgba(15,23,42,0.07);
+      transform: translateY(-1px);
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      flex-wrap: wrap;
+      max-width: 720px;
+      margin: 10px auto 0;
+      padding: 0 2px;
+    }
+
+    .pill {
+      display: inline-block;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .01em;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: calc(100vh - 260px);
+      padding: 6px 0 0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+      min-width: 760px;
+      padding: 0 14px 14px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: transparent;
+      text-align: left;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 16px 4px;
+      border-bottom: none;
+    }
+
+    tbody td {
+      padding: 14px 16px;
+      vertical-align: middle;
+      font-size: 14px;
+      background: rgba(255,255,255,0.96);
+      border-top: 1px solid #eef2f7;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    tbody td:first-child {
+      border-left: 1px solid #eef2f7;
+      border-top-left-radius: 16px;
+      border-bottom-left-radius: 16px;
+      font-weight: 700;
+    }
+
+    tbody td:last-child {
+      border-right: 1px solid #eef2f7;
+      border-top-right-radius: 16px;
+      border-bottom-right-radius: 16px;
+    }
+
+    tbody tr:hover td {
+      background: #fbfdff;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      text-decoration: none;
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 6px 16px rgba(37,99,235,0.22);
+      transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:hover { background: var(--accent-hover); }
+    .btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 10px rgba(37,99,235,0.18);
+    }
+
+    .empty {
+      padding: 36px 24px 40px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .wrap {
+        padding: 10px;
+      }
+
+      .card {
+        border-radius: 24px;
+      }
+
+      .header {
+        padding: 10px 14px 12px;
+      }
+
+      .header img {
+        width: 115px;
+        margin-bottom: 6px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .sub {
+        font-size: 13px;
+      }
+
+      .controls {
+        top: 98px;
+        padding: 12px 12px 10px;
+      }
+
+      .table-wrap {
+        max-height: none;
+        overflow: visible;
+        padding: 10px 12px 16px;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+        min-width: 0;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tbody {
+        display: grid;
+        gap: 12px;
+      }
+
+      tbody tr {
+        background: rgba(255,255,255,0.98);
+        border: 1px solid #eef2f7;
+        border-radius: 18px;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+      }
+
+      tbody td {
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 10px 14px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        background: transparent;
+        text-align: right;
+      }
+
+      tbody td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        text-align: left;
+      }
+
+      tbody td:first-child {
+        padding-top: 14px;
+        font-size: 16px;
+      }
+
+      tbody td:first-child::before {
+        content: "TS #";
+      }
+
+      tbody td:last-child {
+        padding-bottom: 14px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  
+    .home-btn {
+      position: absolute;
+      left: 16px;
+      top: 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:36px;
+      height:36px;
+      color:#1d4ed8;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      border-radius:999px;
+      box-shadow:0 4px 10px rgba(15,23,42,0.05);
+      text-decoration:none;
+    }
+    .home-btn:active { transform: scale(0.96); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <a href="index.html" class="home-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3l9-8z"/></svg></a>
+<img src="meade_logo.jpg" alt="Meade Logo">
+<h1>Pump Station Location Search</h1>
+        <p class="sub">Search the <strong>PS #</strong> field, then click <strong>Open Map</strong> to launch the Google Maps link for that location.</p>
+      </div>
+
+      <div class="controls">
+        <div class="search-floating"><div class="search-wrap"><span class="search-icon">⌕</span><input id="searchInput" class="search" type="text" placeholder="Enter PS #..." autocomplete="off" /></div>
+<div class="mode-toggle" style="display:flex;gap:10px;align-items:center;margin-top:10px;max-width:720px;margin-left:auto;margin-right:auto;">
+  <label style="font-size:13px;color:#6b7280;font-weight:600;">Match mode:</label>
+  <select id="matchMode" style="padding:8px 10px;border-radius:10px;border:1px solid #d1d5db;font-size:14px;">
+    <option value="exact">Exact</option>
+    <option value="startsWith">Starts With</option>
+  </select>
+</div>
+
+        <div class="meta">
+          <div><span class="pill">Searchable field: PS #</span></div>
+          <div id="resultCount">Loading…</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>PS #</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Map Link</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty" style="display:none;">No matching locations found.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const allRows = [{"name":"02","latitude":42.08947,"longitude":-87.76093,"map_link":"https://www.google.com/maps?q=42.08947,-87.76093"},{"name":"03","latitude":41.98432,"longitude":-87.74926,"map_link":"https://www.google.com/maps?q=41.98432,-87.74926"},{"name":"04","latitude":41.87162,"longitude":-87.82649,"map_link":"https://www.google.com/maps?q=41.87162,-87.82649"},{"name":"05","latitude":41.87622,"longitude":-87.64471,"map_link":"https://www.google.com/maps?q=41.87622,-87.64471"},{"name":"07","latitude":41.87563,"longitude":-87.63523,"map_link":"https://www.google.com/maps?q=41.87563,-87.63523"},{"name":"08","latitude":42.04762,"longitude":-87.89837,"map_link":"https://www.google.com/maps?q=42.04762,-87.89837"},{"name":"09","latitude":41.89906,"longitude":-87.88314,"map_link":"https://www.google.com/maps?q=41.89906,-87.88314"},{"name":"10","latitude":42.0406931,"longitude":-87.8280257,"map_link":"https://www.google.com/maps?q=42.0406931,-87.8280257"},{"name":"11","latitude":41.6058693,"longitude":-87.73636,"map_link":"https://www.google.com/maps?q=41.6058693,-87.73636"},{"name":"12","latitude":41.9079958,"longitude":-87.8680994,"map_link":"https://www.google.com/maps?q=41.9079958,-87.8680994"},{"name":"13","latitude":42.0232423,"longitude":-87.7469088,"map_link":"https://www.google.com/maps?q=42.0232423,-87.7469088"},{"name":"14","latitude":41.6406057,"longitude":-87.6597465,"map_link":"https://www.google.com/maps?q=41.6406057,-87.6597465"},{"name":"15","latitude":41.7500155,"longitude":-87.7026621,"map_link":"https://www.google.com/maps?q=41.7500155,-87.7026621"},{"name":"16","latitude":41.9969144,"longitude":-87.879636,"map_link":"https://www.google.com/maps?q=41.9969144,-87.879636"},{"name":"17","latitude":42.053721,"longitude":-87.8767362,"map_link":"https://www.google.com/maps?q=42.053721,-87.8767362"},{"name":"18","latitude":41.6010643,"longitude":-87.612398,"map_link":"https://www.google.com/maps?q=41.6010643,-87.612398"},{"name":"19","latitude":41.6034508,"longitude":-87.7393976,"map_link":"https://www.google.com/maps?q=41.6034508,-87.7393976"},{"name":"20","latitude":41.8736097,"longitude":-87.9092495,"map_link":"https://www.google.com/maps?q=41.8736097,-87.9092495"},{"name":"21","latitude":41.7635343,"longitude":-87.6242221,"map_link":"https://www.google.com/maps?q=41.7635343,-87.6242221"},{"name":"22","latitude":41.8864946,"longitude":-87.6457418,"map_link":"https://www.google.com/maps?q=41.8864946,-87.6457418"},{"name":"23","latitude":41.9433124,"longitude":-87.717345,"map_link":"https://www.google.com/maps?q=41.9433124,-87.717345"},{"name":"24","latitude":41.98166,"longitude":-87.87522,"map_link":"https://www.google.com/maps?q=41.98166,-87.87522"},{"name":"25","latitude":41.7186415,"longitude":-87.8003758,"map_link":"https://www.google.com/maps?q=41.7186415,-87.8003758"},{"name":"26","latitude":41.8671624,"longitude":-87.6459418,"map_link":"https://www.google.com/maps?q=41.8671624,-87.6459418"},{"name":"27","latitude":41.6949809,"longitude":-87.5957812,"map_link":"https://www.google.com/maps?q=41.6949809,-87.5957812"},{"name":"28","latitude":41.8433766,"longitude":-87.7449144,"map_link":"https://www.google.com/maps?q=41.8433766,-87.7449144"},{"name":"29","latitude":41.8490557,"longitude":-87.6434782,"map_link":"https://www.google.com/maps?q=41.8490557,-87.6434782"},{"name":"30","latitude":41.8281036,"longitude":-87.7070124,"map_link":"https://www.google.com/maps?q=41.8281036,-87.7070124"},{"name":"31","latitude":41.6909394,"longitude":-87.7535545,"map_link":"https://www.google.com/maps?q=41.6909394,-87.7535545"},{"name":"32","latitude":41.9080951,"longitude":-87.8366811,"map_link":"https://www.google.com/maps?q=41.9080951,-87.8366811"},{"name":"33","latitude":42.1080823,"longitude":-87.888889,"map_link":"https://www.google.com/maps?q=42.1080823,-87.888889"},{"name":"34","latitude":41.9092762,"longitude":-87.9307872,"map_link":"https://www.google.com/maps?q=41.9092762,-87.9307872"},{"name":"35","latitude":41.6581234,"longitude":-87.6630591,"map_link":"https://www.google.com/maps?q=41.6581234,-87.6630591"},{"name":"36","latitude":41.5699527,"longitude":-87.7927923,"map_link":"https://www.google.com/maps?q=41.5699527,-87.7927923"},{"name":"37","latitude":42.27967,"longitude":-87.87042,"map_link":"https://www.google.com/maps?q=42.27967,-87.87042"},{"name":"38","latitude":42.2468,"longitude":-87.86232,"map_link":"https://www.google.com/maps?q=42.2468,-87.86232"},{"name":"39","latitude":42.2398062,"longitude":-87.8817043,"map_link":"https://www.google.com/maps?q=42.2398062,-87.8817043"},{"name":"40","latitude":42.2435547,"longitude":-87.9937978,"map_link":"https://www.google.com/maps?q=42.2435547,-87.9937978"},{"name":"41","latitude":42.28702,"longitude":-87.87244,"map_link":"https://www.google.com/maps?q=42.28702,-87.87244"},{"name":"42","latitude":42.0850514,"longitude":-88.4562735,"map_link":"https://www.google.com/maps?q=42.0850514,-88.4562735"},{"name":"43","latitude":42.37899,"longitude":-87.91261,"map_link":"https://www.google.com/maps?q=42.37899,-87.91261"},{"name":"44","latitude":41.8971336,"longitude":-87.9639443,"map_link":"https://www.google.com/maps?q=41.8971336,-87.9639443"},{"name":"46","latitude":42.1596011,"longitude":-87.8045165,"map_link":"https://www.google.com/maps?q=42.1596011,-87.8045165"},{"name":"47","latitude":41.7779499,"longitude":-88.20593,"map_link":"https://www.google.com/maps?q=41.7779499,-88.20593"},{"name":"48","latitude":41.82092,"longitude":-88.21582,"map_link":"https://www.google.com/maps?q=41.82092,-88.21582"},{"name":"50","latitude":42.1994955,"longitude":-87.8310091,"map_link":"https://www.google.com/maps?q=42.1994955,-87.8310091"},{"name":"51","latitude":41.6620031,"longitude":-87.7088585,"map_link":"https://www.google.com/maps?q=41.6620031,-87.7088585"},{"name":"52","latitude":41.6145846,"longitude":-88.2027506,"map_link":"https://www.google.com/maps?q=41.6145846,-88.2027506"}];
+    const searchInput = document.getElementById('searchInput');
+    const resultsBody = document.getElementById('resultsBody');
+    const resultCount = document.getElementById('resultCount');
+    const emptyState = document.getElementById('emptyState');
+
+    function formatNumber(value) {
+      if (value === null || value === undefined || value === '') return '';
+      return Number(value).toFixed(5);
+    }
+
+    function renderRows(rows) {
+      resultsBody.innerHTML = '';
+
+      if (!rows.length) {
+        emptyState.style.display = 'block';
+      } else {
+        emptyState.style.display = 'none';
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      rows.forEach((row) => {
+        const tr = document.createElement('tr');
+
+        const fields = [
+          ['PS #', row.name],
+          ['Latitude', formatNumber(row.latitude)],
+          ['Longitude', formatNumber(row.longitude)],
+        ];
+
+        fields.forEach(([label, value]) => {
+          const td = document.createElement('td');
+          td.setAttribute('data-label', label);
+          td.textContent = value ?? '';
+          tr.appendChild(td);
+        });
+
+        const linkTd = document.createElement('td');
+        linkTd.setAttribute('data-label', 'Map Link');
+        if (row.map_link) {
+          const link = document.createElement('a');
+          link.href = row.map_link;
+          link.className = 'btn';
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = 'Open Map';
+          linkTd.appendChild(link);
+        }
+        tr.appendChild(linkTd);
+
+        fragment.appendChild(tr);
+      });
+
+      resultsBody.appendChild(fragment);
+      resultCount.textContent = `${rows.length.toLocaleString()} result${rows.length === 1 ? '' : 's'}`;
+    }
+
+    function applySearch() {
+      const query = searchInput.value.trim().toLowerCase();
+      if (!query) {
+        renderRows(allRows);
+        return;
+      }
+
+      const mode = document.getElementById("matchMode").value;
+      const filtered = allRows.filter(row => {
+        const name = String(row.name).trim().toLowerCase();
+        if (!query) return false;
+        if (mode === "exact") return name === query;
+        if (mode === "startsWith") return name.startsWith(query);
+        return false;
+      });
+      renderRows(filtered);
+    }
+
+    searchInput.addEventListener('input', applySearch);
+    renderRows(allRows);
+  </script>
+</body>
+</html>
